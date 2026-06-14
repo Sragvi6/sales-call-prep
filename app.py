@@ -267,7 +267,8 @@ def generate_prep():
         }), 502
     except Exception as e:
         logger.error(f"Error during Gemini call: {e}")
-        return jsonify({"error": f"An error occurred while generating the brief: {str(e)}"}), 500
+        app.logger.error(f"Error generating brief: {str(e)}")
+        return jsonify({"error": "Something went wrong. Please try again later."}), 500
 
 if __name__ == '__main__':
     port = int(os.getenv("FLASK_PORT", 5000))
