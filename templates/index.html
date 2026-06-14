@@ -3,14 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SalesPrep.AI - AI Sales Intelligence</title>
-    <!-- Google Fonts: Space Grotesk + JetBrains Mono -->
+    <title>SalesPrep.AI - Sales Intelligence Tool</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 <body>
@@ -28,14 +26,10 @@
                     <p class="subtitle">AI-Powered Sales Intelligence</p>
                 </div>
             </div>
-            <div class="status-indicator">
-                <span class="pulse-dot"></span>
-                <span>Gemini 2.0 Flash Connected</span>
-            </div>
         </header>
 
-        <!-- Main Search Panel -->
         <main class="main-content">
+            <!-- Search Section -->
             <section class="search-section card">
                 <h2>Prepare for your next sales meeting instantly</h2>
                 <p class="search-desc">Enter the target company name below. Our AI will compile an executive summary, identify pain points, craft strategic discovery questions, and outline key stakeholders to target.</p>
@@ -52,19 +46,19 @@
                 </form>
             </section>
 
-            <!-- Status Alerts -->
+            <!-- Error Alert -->
             <div id="error-alert" class="alert alert-error hidden">
                 <i data-lucide="alert-circle"></i>
                 <span id="error-message">Error text goes here</span>
             </div>
 
-            <!-- Welcome / Empty State -->
+            <!-- Welcome State -->
             <section id="welcome-state" class="welcome-state">
                 <div class="grid-steps">
                     <div class="step-card">
                         <div class="step-num">01</div>
                         <h3>Identify Lead</h3>
-                        <p>Type in the company name of your prospect. Large or mid-market companies work best.</p>
+                        <p>Type in the company name of your prospect.</p>
                     </div>
                     <div class="step-card">
                         <div class="step-num">02</div>
@@ -77,15 +71,72 @@
                         <p>Walk into your meeting armed with personalized pain-point insights and high-impact discovery questions.</p>
                     </div>
                 </div>
+
+                <!-- Sample Output Section -->
+                <div class="sample-section">
+                    <div class="sample-label">
+                        <i data-lucide="eye"></i>
+                        <span>Sample output — try it with any company</span>
+                    </div>
+                    <div class="sample-card card">
+                        <div class="sample-header">
+                            <div>
+                                <span class="badge">Sales Brief</span>
+                                <h3>Zomato</h3>
+                                <p class="timestamp">Sample report</p>
+                            </div>
+                        </div>
+                        <div class="sample-grid">
+                            <div class="sample-block">
+                                <div class="card-header">
+                                    <i data-lucide="building" class="card-header-icon text-primary"></i>
+                                    <h4>Company Summary</h4>
+                                </div>
+                                <p>Zomato is India's leading food delivery and restaurant discovery platform, operating across 800+ cities. With Blinkit acquisition, they've expanded into 10-minute quick commerce. Revenue exceeded ₹12,000 Cr in FY24 with a path to profitability now realized.</p>
+                            </div>
+                            <div class="sample-block">
+                                <div class="card-header">
+                                    <i data-lucide="zap" class="card-header-icon text-danger"></i>
+                                    <h4>Key Pain Points</h4>
+                                </div>
+                                <ul class="sample-list">
+                                    <li>High customer acquisition costs in tier-2/3 cities</li>
+                                    <li>Delivery partner retention and gig workforce management</li>
+                                    <li>Blinkit integration creating operational complexity</li>
+                                </ul>
+                            </div>
+                            <div class="sample-block">
+                                <div class="card-header">
+                                    <i data-lucide="message-square" class="card-header-icon text-success"></i>
+                                    <h4>Discovery Questions</h4>
+                                </div>
+                                <ul class="sample-list">
+                                    <li>"How are you measuring retention across your delivery partner network?"</li>
+                                    <li>"What's your current approach to CAC optimization in newer markets?"</li>
+                                </ul>
+                            </div>
+                            <div class="sample-block">
+                                <div class="card-header">
+                                    <i data-lucide="users" class="card-header-icon text-info"></i>
+                                    <h4>Key Stakeholders</h4>
+                                </div>
+                                <ul class="sample-list">
+                                    <li>Deepinder Goyal — CEO, focused on profitability & Blinkit scale</li>
+                                    <li>Albinder Dhindsa — CEO Blinkit, quick commerce expansion</li>
+                                    <li>VP of Engineering — platform reliability & tech infra</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
 
-            <!-- Loading State (Skeletons) -->
+            <!-- Loading State -->
             <section id="loading-state" class="loading-state hidden">
                 <div class="loading-header card">
                     <div class="skeleton skeleton-title"></div>
                     <div class="skeleton skeleton-subtitle"></div>
                 </div>
-                
                 <div class="dashboard-grid">
                     <div class="card grid-col-span-2">
                         <div class="skeleton skeleton-section-title"></div>
@@ -150,7 +201,6 @@
                         </div>
                         <div id="summary-content" class="card-content text-block"></div>
                     </section>
-
                     <section class="card">
                         <div class="card-header">
                             <i data-lucide="newspaper" class="card-header-icon text-accent"></i>
@@ -158,7 +208,6 @@
                         </div>
                         <div id="news-content" class="card-content list-content"></div>
                     </section>
-
                     <section class="card">
                         <div class="card-header">
                             <i data-lucide="zap" class="card-header-icon text-danger"></i>
@@ -166,7 +215,6 @@
                         </div>
                         <div id="pain-points-content" class="card-content list-content"></div>
                     </section>
-
                     <section class="card">
                         <div class="card-header">
                             <i data-lucide="message-square" class="card-header-icon text-success"></i>
@@ -174,7 +222,6 @@
                         </div>
                         <div id="questions-content" class="card-content list-content"></div>
                     </section>
-
                     <section class="card">
                         <div class="card-header">
                             <i data-lucide="users" class="card-header-icon text-info"></i>
@@ -188,7 +235,7 @@
 
         <!-- Footer -->
         <footer class="app-footer">
-            <p>&copy; 2026 SalesPrep.AI — Built with Flask & Gemini 2.0 Flash</p>
+            <p>Built by <a href="https://www.linkedin.com/in/sragvi-rajagopalan" target="_blank" class="footer-link">Sragvi Rajagopalan</a> &middot; 2026</p>
         </footer>
     </div>
 
