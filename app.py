@@ -1,4 +1,5 @@
 import os
+import re
 import json
 import logging
 import time
@@ -23,8 +24,39 @@ rate_limit_records = {}
 cache_lock = threading.Lock()
 company_cache = {}
 
+# Prompt injection patterns to block
+INJECTION_PATTERNS = [
+    r"ignore\s+(previous|prior|above|all)\s+instructions",
+    r"disregard\s+(previous|prior|above|all)\s+instructions",
+    r"forget\s+(previous|prior|above|all)\s+instructions",
+    r"you\s+are\s+now",
+    r"act\s+as\s+(a|an)",
+    r"pretend\s+(you\s+are|to\s+be)",
+    r"new\s+instructions",
+    r"system\s*:",
+    r"<\s*system\s*>",
+    r"\[system\]",
+    r"jailbreak",
+    r"dan\s+mode",
+    r"developer\s+mode",
+    r"do\s+anything\s+now",
+]
+
+def contains_prompt_injection(text):
+    """Check if input contains prompt injection attempts."""
+    text_lower = text.lower()
+    for pattern in INJECTION_PATTERNS:
+        if re.search(pattern, text_lower):
+            return True
+    return False
+
+def sanitize_company_name(name):
+    """Sanitize company name - allow only safe characters."""
+    # Allow letters, numbers, spaces, hyphens, dots, ampersands, commas
+    sanitized = re.sub(r"[^\w\s\-\.\,\&\(\)']", "", name)
+    return sanitized.strip()
+
 def get_client_ip():
-    # Behind proxy (like Render load balancer), client IP is in X-Forwarded-For
     x_forwarded_for = request.headers.getlist("X-Forwarded-For")
     if x_forwarded_for:
         return x_forwarded_for[0].split(',')[0].strip()
@@ -38,7 +70,6 @@ def is_rate_limited(ip_address):
         if ip_address not in rate_limit_records:
             rate_limit_records[ip_address] = []
             
-        # Keep only requests within the last hour
         rate_limit_records[ip_address] = [t for t in rate_limit_records[ip_address] if t > one_hour_ago]
         
         if len(rate_limit_records[ip_address]) >= 10:
@@ -54,7 +85,6 @@ def add_security_headers(response):
     response.headers['X-XSS-Protection'] = '1; mode=block'
     response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
     
-    # Content Security Policy (allow unpkg for Lucide, Google Fonts, and self)
     csp = (
         "default-src 'self'; "
         "script-src 'self' 'unsafe-inline' unpkg.com; "
@@ -116,14 +146,24 @@ def generate_prep():
     if not company_name:
         return jsonify({"error": "Company name cannot be blank."}), 400
 
-    # 2. Input Validation (Length check and character sanity)
+    # 2. Input Validation
     if len(company_name) > 100:
         return jsonify({"error": "Company name is too long. Maximum length is 100 characters."}), 400
 
     if "<" in company_name or ">" in company_name:
         return jsonify({"error": "Company name contains invalid characters."}), 400
 
-    # 3. Cache Check (1 hour TTL)
+    # 3. Prompt Injection Check
+    if contains_prompt_injection(company_name):
+        logger.warning(f"Prompt injection attempt detected from IP: {client_ip}, input: {company_name}")
+        return jsonify({"error": "Invalid company name. Please enter a real company name."}), 400
+
+    # 4. Sanitize input
+    company_name = sanitize_company_name(company_name)
+    if not company_name:
+        return jsonify({"error": "Company name contains invalid characters."}), 400
+
+    # 5. Cache Check (1 hour TTL)
     cache_key = company_name.lower()
     cached_result = None
     with cache_lock:
@@ -140,7 +180,6 @@ def generate_prep():
 
     logger.info(f"Generating sales prep brief for company: {company_name}")
 
-    # Create the structured prompt for Gemini
     prompt = f"""
     You are an expert sales preparation assistant. Analyze the company "{company_name}" and generate a detailed sales preparation brief.
     Your response must be in JSON format matching the following structure:
@@ -215,7 +254,7 @@ def generate_prep():
         ]
     }}
 
-    Provide realistic, actionable, and industry-specific information tailored directly to {company_name}. Do not use generic statements.
+    Important: Only analyze real companies. Provide realistic, actionable, and industry-specific information tailored directly to {company_name}. Do not use generic statements.
     """
 
     try:
@@ -244,34 +283,29 @@ def generate_prep():
 
         logger.info("Successfully received response from Gemini API.")
         
-        # Parse the JSON response to ensure validity
         parsed_data = json.loads(response_text)
         
-        # 4. Save to Cache
         with cache_lock:
             company_cache[cache_key] = {
                 "data": parsed_data,
                 "timestamp": time.time()
             }
             
-        # Return with cached=False
         response_data = dict(parsed_data)
         response_data["cached"] = False
         return jsonify(response_data)
 
     except json.JSONDecodeError as je:
-        logger.error(f"Failed to parse Gemini response as JSON: {je}. Response content was: {response_text}")
+        logger.error(f"Failed to parse Gemini response as JSON: {je}")
         return jsonify({
-            "error": "The AI response could not be parsed as structured JSON. Please try again.",
-            "raw_response": response_text
+            "error": "The AI response could not be parsed. Please try again.",
         }), 502
     except Exception as e:
-        logger.error(f"Error during Gemini call: {e}")
-        app.logger.error(f"Error generating brief: {str(e)}")
+        logger.error(f"Error generating brief: {str(e)}")
         return jsonify({"error": "Something went wrong. Please try again later."}), 500
 
 if __name__ == '__main__':
     port = int(os.getenv("FLASK_PORT", 5000))
-    debug = os.getenv("FLASK_DEBUG", "True").lower() in ("true", "1", "t")
+    debug = os.getenv("FLASK_DEBUG", "False").lower() in ("true", "1", "t")
     logger.info(f"Starting server on port {port}...")
     app.run(host='0.0.0.0', port=port, debug=debug)
