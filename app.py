@@ -19,6 +19,10 @@ app = Flask(__name__)
 rate_limit_lock = threading.Lock()
 rate_limit_records = {}
 
+# Thread-safe in-memory cache store: Key (lowercase company name) -> {"data": dict, "timestamp": float}
+cache_lock = threading.Lock()
+company_cache = {}
+
 def get_client_ip():
     # Behind proxy (like Render load balancer), client IP is in X-Forwarded-For
     x_forwarded_for = request.headers.getlist("X-Forwarded-For")
@@ -118,6 +122,21 @@ def generate_prep():
 
     if "<" in company_name or ">" in company_name:
         return jsonify({"error": "Company name contains invalid characters."}), 400
+
+    # 3. Cache Check (1 hour TTL)
+    cache_key = company_name.lower()
+    cached_result = None
+    with cache_lock:
+        if cache_key in company_cache:
+            entry = company_cache[cache_key]
+            if time.time() - entry["timestamp"] < 3600:
+                cached_result = entry["data"]
+
+    if cached_result:
+        logger.info(f"Serving cached report for company: {company_name}")
+        response_data = dict(cached_result)
+        response_data["cached"] = True
+        return jsonify(response_data)
 
     logger.info(f"Generating sales prep brief for company: {company_name}")
 
@@ -227,7 +246,18 @@ def generate_prep():
         
         # Parse the JSON response to ensure validity
         parsed_data = json.loads(response_text)
-        return jsonify(parsed_data)
+        
+        # 4. Save to Cache
+        with cache_lock:
+            company_cache[cache_key] = {
+                "data": parsed_data,
+                "timestamp": time.time()
+            }
+            
+        # Return with cached=False
+        response_data = dict(parsed_data)
+        response_data["cached"] = False
+        return jsonify(response_data)
 
     except json.JSONDecodeError as je:
         logger.error(f"Failed to parse Gemini response as JSON: {je}. Response content was: {response_text}")
