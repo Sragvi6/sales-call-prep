@@ -697,3 +697,107 @@ body {
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ── Sample Output Section ── */
+.sample-section {
+    margin-top: 2.5rem;
+}
+
+.sample-label {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--text-muted);
+    font-size: 0.78rem;
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+}
+
+.sample-label i {
+    width: 14px;
+    height: 14px;
+    color: var(--cyan);
+}
+
+.sample-card {
+    border-color: rgba(0, 229, 255, 0.08);
+    background: rgba(0, 229, 255, 0.01);
+}
+
+.sample-header {
+    margin-bottom: 1.25rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+
+.sample-header h3 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    background: linear-gradient(to right, #fff, var(--cyan));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0.25rem 0 0.1rem;
+}
+
+.sample-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+}
+
+.sample-block {
+    background: rgba(0,0,0,0.2);
+    border: 1px solid rgba(0, 229, 255, 0.06);
+    border-radius: var(--radius);
+    padding: 1rem;
+}
+
+.sample-block p {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.65;
+}
+
+.sample-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0;
+}
+
+.sample-list li {
+    font-size: 0.84rem;
+    color: var(--text-secondary);
+    padding-left: 1rem;
+    position: relative;
+    line-height: 1.5;
+}
+
+.sample-list li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--cyan);
+    opacity: 0.6;
+    font-size: 0.75rem;
+}
+
+/* ── Footer link ── */
+.footer-link {
+    color: var(--cyan);
+    text-decoration: none;
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.footer-link:hover {
+    opacity: 1;
+}
+
+@media (max-width: 700px) {
+    .sample-grid { grid-template-columns: 1fr; }
+}
