@@ -118,6 +118,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function renderBrief(data) {
+        // Set cache badge visibility
+        const cacheBadge = document.getElementById('cache-badge');
+        if (data.cached) {
+            cacheBadge.classList.remove('hidden');
+        } else {
+            cacheBadge.classList.add('hidden');
+        }
+
         // Set header title
         resultCompanyTitle.textContent = data.company_name || companyInput.value.trim();
 
