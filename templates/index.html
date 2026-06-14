@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Call Prep Agent - AI Sales Intelligence</title>
+    <!-- Google Fonts: Outfit -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <div class="glow-bg"></div>
+    
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-area">
+                <div class="logo-icon">
+                    <i data-lucide="sparkles"></i>
+                </div>
+                <div>
+                    <h1>SalesPrep.AI</h1>
+                    <p class="subtitle">AI-Powered Sales Call Intelligence</p>
+                </div>
+            </div>
+            <div class="status-indicator">
+                <span class="pulse-dot"></span>
+                <span>Gemini 1.5 Flash Connected</span>
+            </div>
+        </header>
+
+        <!-- Main Search Panel -->
+        <main class="main-content">
+            <section class="search-section card">
+                <h2>Prepare for your next sales meeting instantly</h2>
+                <p class="search-desc">Enter the target company name below. Our AI will compile an executive summary, identify pain points, craft strategic discovery questions, and outline key stakeholders to target.</p>
+                
+                <form id="prep-form" class="search-form">
+                    <div class="input-wrapper">
+                        <i data-lucide="building-2" class="input-icon"></i>
+                        <input type="text" id="company-name" placeholder="e.g. Stripe, Zoom, Salesforce..." required autocomplete="off">
+                    </div>
+                    <button type="submit" id="submit-btn" class="btn btn-primary">
+                        <span>Generate Intelligence</span>
+                        <i data-lucide="arrow-right" class="btn-icon"></i>
+                    </button>
+                </form>
+            </section>
+
+            <!-- Status Alerts -->
+            <div id="error-alert" class="alert alert-error hidden">
+                <i data-lucide="alert-circle"></i>
+                <span id="error-message">Error text goes here</span>
+            </div>
+
+            <!-- Welcome / Empty State -->
+            <section id="welcome-state" class="welcome-state">
+                <div class="grid-steps">
+                    <div class="step-card">
+                        <div class="step-num">01</div>
+                        <h3>Identify Lead</h3>
+                        <p>Type in the company name of your prospect. Large or mid-market companies work best.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">02</div>
+                        <h3>Run Prep Agent</h3>
+                        <p>The AI reviews industry data, pain points, news trends, and executive focus areas.</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-num">03</div>
+                        <h3>Win the Call</h3>
+                        <p>Walk into your meeting armed with personalized pain-point insights and high-impact discovery questions.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Loading State (Skeletons) -->
+            <section id="loading-state" class="loading-state hidden">
+                <div class="loading-header card">
+                    <div class="skeleton skeleton-title"></div>
+                    <div class="skeleton skeleton-subtitle"></div>
+                </div>
+                
+                <div class="dashboard-grid">
+                    <!-- Summary Skeleton -->
+                    <div class="card grid-col-span-2">
+                        <div class="skeleton skeleton-section-title"></div>
+                        <div class="skeleton skeleton-para"></div>
+                        <div class="skeleton skeleton-para"></div>
+                    </div>
+                    
+                    <!-- News Skeleton -->
+                    <div class="card">
+                        <div class="skeleton skeleton-section-title"></div>
+                        <div class="skeleton skeleton-item"></div>
+                        <div class="skeleton skeleton-item"></div>
+                        <div class="skeleton skeleton-item"></div>
+                    </div>
+
+                    <!-- Pain Points Skeleton -->
+                    <div class="card">
+                        <div class="skeleton skeleton-section-title"></div>
+                        <div class="skeleton skeleton-item"></div>
+                        <div class="skeleton skeleton-item"></div>
+                        <div class="skeleton skeleton-item"></div>
+                    </div>
+
+                    <!-- Discovery Questions Skeleton -->
+                    <div class="card">
+                        <div class="skeleton skeleton-section-title"></div>
+                        <div class="skeleton skeleton-item"></div>
+                        <div class="skeleton skeleton-item"></div>
+                        <div class="skeleton skeleton-item"></div>
+                    </div>
+
+                    <!-- Key Stakeholders Skeleton -->
+                    <div class="card">
+                        <div class="skeleton skeleton-section-title"></div>
+                        <div class="skeleton skeleton-item"></div>
+                        <div class="skeleton skeleton-item"></div>
+                        <div class="skeleton skeleton-item"></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Results Dashboard -->
+            <section id="results-dashboard" class="results-dashboard hidden">
+                <div class="results-header card">
+                    <div class="results-meta">
+                        <span class="badge">Sales Brief</span>
+                        <h2 id="result-company-title">Company Name</h2>
+                        <p class="timestamp">Generated just now</p>
+                    </div>
+                    <div class="actions">
+                        <button id="copy-btn" class="btn btn-secondary">
+                            <i data-lucide="copy"></i>
+                            <span>Copy Brief</span>
+                        </button>
+                        <button id="print-btn" class="btn btn-secondary">
+                            <i data-lucide="printer"></i>
+                            <span>Print Brief</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="dashboard-grid">
+                    <!-- Company Summary -->
+                    <section class="card grid-col-span-2 highlight-card">
+                        <div class="card-header">
+                            <i data-lucide="building" class="card-header-icon text-primary"></i>
+                            <h3>Company Summary & Value Proposition</h3>
+                        </div>
+                        <div id="summary-content" class="card-content text-block">
+                            <!-- Dynamic -->
+                        </div>
+                    </section>
+
+                    <!-- Recent News & Events -->
+                    <section class="card">
+                        <div class="card-header">
+                            <i data-lucide="newspaper" class="card-header-icon text-accent"></i>
+                            <h3>Recent News & Trigger Events</h3>
+                        </div>
+                        <div id="news-content" class="card-content list-content">
+                            <!-- Dynamic -->
+                        </div>
+                    </section>
+
+                    <!-- Potential Pain Points -->
+                    <section class="card">
+                        <div class="card-header">
+                            <i data-lucide="zap" class="card-header-icon text-danger"></i>
+                            <h3>Potential Pain Points & Challenges</h3>
+                        </div>
+                        <div id="pain-points-content" class="card-content list-content">
+                            <!-- Dynamic -->
+                        </div>
+                    </section>
+
+                    <!-- Strategic Discovery Questions -->
+                    <section class="card">
+                        <div class="card-header">
+                            <i data-lucide="message-square" class="card-header-icon text-success"></i>
+                            <h3>Strategic Discovery Questions</h3>
+                        </div>
+                        <div id="questions-content" class="card-content list-content">
+                            <!-- Dynamic -->
+                        </div>
+                    </section>
+
+                    <!-- Key Stakeholders to Research -->
+                    <section class="card">
+                        <div class="card-header">
+                            <i data-lucide="users" class="card-header-icon text-info"></i>
+                            <h3>Key Stakeholders to Research</h3>
+                        </div>
+                        <div id="people-content" class="card-content list-content">
+                            <!-- Dynamic -->
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="app-footer">
+            <p>&copy; 2026 SalesPrep.AI. Built with Flask & Gemini 1.5 Flash.</p>
+        </footer>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+    </script>
+</body>
+</html>
