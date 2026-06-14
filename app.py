@@ -1,6 +1,8 @@
 import os
 import json
 import logging
+import time
+import threading
 from flask import Flask, render_template, request, jsonify
 from dotenv import load_dotenv
 
@@ -12,6 +14,53 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 app = Flask(__name__)
+
+# Thread-safe in-memory rate limiting store: IP -> list of timestamps
+rate_limit_lock = threading.Lock()
+rate_limit_records = {}
+
+def get_client_ip():
+    # Behind proxy (like Render load balancer), client IP is in X-Forwarded-For
+    x_forwarded_for = request.headers.getlist("X-Forwarded-For")
+    if x_forwarded_for:
+        return x_forwarded_for[0].split(',')[0].strip()
+    return request.remote_addr
+
+def is_rate_limited(ip_address):
+    now = time.time()
+    one_hour_ago = now - 3600
+    
+    with rate_limit_lock:
+        if ip_address not in rate_limit_records:
+            rate_limit_records[ip_address] = []
+            
+        # Keep only requests within the last hour
+        rate_limit_records[ip_address] = [t for t in rate_limit_records[ip_address] if t > one_hour_ago]
+        
+        if len(rate_limit_records[ip_address]) >= 10:
+            return True
+            
+        rate_limit_records[ip_address].append(now)
+        return False
+
+@app.after_request
+def add_security_headers(response):
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    
+    # Content Security Policy (allow unpkg for Lucide, Google Fonts, and self)
+    csp = (
+        "default-src 'self'; "
+        "script-src 'self' 'unsafe-inline' unpkg.com; "
+        "style-src 'self' 'unsafe-inline' fonts.googleapis.com; "
+        "font-src 'self' fonts.gstatic.com; "
+        "img-src 'self' data:; "
+        "connect-src 'self';"
+    )
+    response.headers['Content-Security-Policy'] = csp
+    return response
 
 # Setup SDK wrappers
 api_key = os.getenv("GEMINI_API_KEY")
@@ -36,6 +85,14 @@ def index():
 
 @app.route('/generate', methods=['POST'])
 def generate_prep():
+    # 1. Rate Limiting Check
+    client_ip = get_client_ip()
+    if is_rate_limited(client_ip):
+        logger.warning(f"Rate limit exceeded for IP: {client_ip}")
+        return jsonify({
+            "error": "Rate limit exceeded. Maximum of 10 requests per hour are allowed."
+        }), 429
+
     # Verify API key is present
     if not api_key or api_key.strip() == "" or api_key == "YOUR_API_KEY_HERE":
         return jsonify({
@@ -54,6 +111,13 @@ def generate_prep():
     company_name = data['company_name'].strip()
     if not company_name:
         return jsonify({"error": "Company name cannot be blank."}), 400
+
+    # 2. Input Validation (Length check and character sanity)
+    if len(company_name) > 100:
+        return jsonify({"error": "Company name is too long. Maximum length is 100 characters."}), 400
+
+    if "<" in company_name or ">" in company_name:
+        return jsonify({"error": "Company name contains invalid characters."}), 400
 
     logger.info(f"Generating sales prep brief for company: {company_name}")
 
