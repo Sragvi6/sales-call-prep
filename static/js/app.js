@@ -23,24 +23,46 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Local copy variable to store fetched data
     let currentBrief = null;
+    let isProcessing = false;
 
     prepForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         
-        const companyName = companyInput.value.trim();
-        if (!companyName) return;
+        if (isProcessing) return;
 
+        const companyName = companyInput.value.trim();
+        
+        // 1. Client-Side Input Validation
+        if (!companyName) {
+            showLocalError('Company name cannot be blank.');
+            return;
+        }
+
+        if (companyName.length > 100) {
+            showLocalError('Company name cannot exceed 100 characters.');
+            return;
+        }
+
+        if (/[<>]/.test(companyName)) {
+            showLocalError('Company name contains invalid HTML/tag characters.');
+            return;
+        }
+
+        // Lock form states
+        isProcessing = true;
+        
         // Reset UI states
         errorAlert.classList.add('hidden');
         welcomeState.classList.add('hidden');
         resultsDashboard.classList.add('hidden');
         loadingState.classList.remove('hidden');
         
-        // Disable submit button and show loading text
+        // Disable submit button and input to prevent spam
         submitBtn.disabled = true;
+        companyInput.disabled = true;
         const originalBtnText = submitBtn.innerHTML;
         submitBtn.innerHTML = `
-            <span>Analyzing ${companyName}...</span>
+            <span>Analyzing ${escapeHtml(companyName)}...</span>
             <span class="pulse-dot"></span>
         `;
 
@@ -79,13 +101,21 @@ document.addEventListener('DOMContentLoaded', () => {
             loadingState.classList.add('hidden');
             welcomeState.classList.remove('hidden');
         } finally {
-            // Restore button state
+            // Restore form states
+            isProcessing = false;
             submitBtn.disabled = false;
+            companyInput.disabled = false;
             submitBtn.innerHTML = originalBtnText;
             // Reinitialize icons in case buttons changed
             lucide.createIcons();
         }
     });
+
+    function showLocalError(message) {
+        errorMessage.textContent = message;
+        errorAlert.classList.remove('hidden');
+        errorAlert.scrollIntoView({ behavior: 'smooth' });
+    }
 
     function renderBrief(data) {
         // Set header title
