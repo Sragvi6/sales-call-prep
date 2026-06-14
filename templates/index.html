@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sales Call Prep Agent - AI Sales Intelligence</title>
-    <!-- Google Fonts: Outfit -->
+    <title>SalesPrep.AI - AI Sales Intelligence</title>
+    <!-- Google Fonts: Space Grotesk + JetBrains Mono -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <!-- Custom CSS -->
@@ -25,12 +25,12 @@
                 </div>
                 <div>
                     <h1>SalesPrep.AI</h1>
-                    <p class="subtitle">AI-Powered Sales Call Intelligence</p>
+                    <p class="subtitle">AI-Powered Sales Intelligence</p>
                 </div>
             </div>
             <div class="status-indicator">
                 <span class="pulse-dot"></span>
-                <span>Gemini 1.5 Flash Connected</span>
+                <span>Gemini 2.0 Flash Connected</span>
             </div>
         </header>
 
@@ -87,38 +87,29 @@
                 </div>
                 
                 <div class="dashboard-grid">
-                    <!-- Summary Skeleton -->
                     <div class="card grid-col-span-2">
                         <div class="skeleton skeleton-section-title"></div>
                         <div class="skeleton skeleton-para"></div>
                         <div class="skeleton skeleton-para"></div>
                     </div>
-                    
-                    <!-- News Skeleton -->
                     <div class="card">
                         <div class="skeleton skeleton-section-title"></div>
                         <div class="skeleton skeleton-item"></div>
                         <div class="skeleton skeleton-item"></div>
                         <div class="skeleton skeleton-item"></div>
                     </div>
-
-                    <!-- Pain Points Skeleton -->
                     <div class="card">
                         <div class="skeleton skeleton-section-title"></div>
                         <div class="skeleton skeleton-item"></div>
                         <div class="skeleton skeleton-item"></div>
                         <div class="skeleton skeleton-item"></div>
                     </div>
-
-                    <!-- Discovery Questions Skeleton -->
                     <div class="card">
                         <div class="skeleton skeleton-section-title"></div>
                         <div class="skeleton skeleton-item"></div>
                         <div class="skeleton skeleton-item"></div>
                         <div class="skeleton skeleton-item"></div>
                     </div>
-
-                    <!-- Key Stakeholders Skeleton -->
                     <div class="card">
                         <div class="skeleton skeleton-section-title"></div>
                         <div class="skeleton skeleton-item"></div>
@@ -152,59 +143,44 @@
                 </div>
 
                 <div class="dashboard-grid">
-                    <!-- Company Summary -->
                     <section class="card grid-col-span-2 highlight-card">
                         <div class="card-header">
                             <i data-lucide="building" class="card-header-icon text-primary"></i>
                             <h3>Company Summary & Value Proposition</h3>
                         </div>
-                        <div id="summary-content" class="card-content text-block">
-                            <!-- Dynamic -->
-                        </div>
+                        <div id="summary-content" class="card-content text-block"></div>
                     </section>
 
-                    <!-- Recent News & Events -->
                     <section class="card">
                         <div class="card-header">
                             <i data-lucide="newspaper" class="card-header-icon text-accent"></i>
                             <h3>Recent News & Trigger Events</h3>
                         </div>
-                        <div id="news-content" class="card-content list-content">
-                            <!-- Dynamic -->
-                        </div>
+                        <div id="news-content" class="card-content list-content"></div>
                     </section>
 
-                    <!-- Potential Pain Points -->
                     <section class="card">
                         <div class="card-header">
                             <i data-lucide="zap" class="card-header-icon text-danger"></i>
                             <h3>Potential Pain Points & Challenges</h3>
                         </div>
-                        <div id="pain-points-content" class="card-content list-content">
-                            <!-- Dynamic -->
-                        </div>
+                        <div id="pain-points-content" class="card-content list-content"></div>
                     </section>
 
-                    <!-- Strategic Discovery Questions -->
                     <section class="card">
                         <div class="card-header">
                             <i data-lucide="message-square" class="card-header-icon text-success"></i>
                             <h3>Strategic Discovery Questions</h3>
                         </div>
-                        <div id="questions-content" class="card-content list-content">
-                            <!-- Dynamic -->
-                        </div>
+                        <div id="questions-content" class="card-content list-content"></div>
                     </section>
 
-                    <!-- Key Stakeholders to Research -->
                     <section class="card">
                         <div class="card-header">
                             <i data-lucide="users" class="card-header-icon text-info"></i>
                             <h3>Key Stakeholders to Research</h3>
                         </div>
-                        <div id="people-content" class="card-content list-content">
-                            <!-- Dynamic -->
-                        </div>
+                        <div id="people-content" class="card-content list-content"></div>
                     </section>
                 </div>
             </section>
@@ -212,15 +188,11 @@
 
         <!-- Footer -->
         <footer class="app-footer">
-            <p>&copy; 2026 SalesPrep.AI. Built with Flask & Gemini 1.5 Flash.</p>
+            <p>&copy; 2026 SalesPrep.AI — Built with Flask & Gemini 2.0 Flash</p>
         </footer>
     </div>
 
-    <!-- Custom JavaScript -->
     <script src="{{ url_for('static', filename='js/app.js') }}"></script>
-    <script>
-        // Initialize Lucide icons
-        lucide.createIcons();
-    </script>
+    <script>lucide.createIcons();</script>
 </body>
 </html>
