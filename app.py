@@ -87,7 +87,7 @@ def add_security_headers(response):
     
     csp = (
         "default-src 'self'; "
-        "script-src 'self' 'unsafe-inline' unpkg.com; "
+        "script-src 'self' 'unsafe-inline' https://unpkg.com; "
         "style-src 'self' 'unsafe-inline' fonts.googleapis.com; "
         "font-src 'self' fonts.gstatic.com; "
         "img-src 'self' data:; "
@@ -169,7 +169,7 @@ def generate_prep():
     with cache_lock:
         if cache_key in company_cache:
             entry = company_cache[cache_key]
-            if time.time() - entry["timestamp"] < 3600:
+            if time.time() - entry["timestamp"] < 21600:
                 cached_result = entry["data"]
 
     if cached_result:
@@ -261,7 +261,7 @@ def generate_prep():
         if has_new_sdk:
             client = genai.Client(api_key=api_key)
             response = client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-1.5-flash',
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
@@ -271,7 +271,7 @@ def generate_prep():
             response_text = response.text
         else:
             genai_old.configure(api_key=api_key)
-            model = genai_old.GenerativeModel('gemini-2.5-flash')
+            model = genai_old.GenerativeModel('gemini-1.5-flash')
             response = model.generate_content(
                 prompt,
                 generation_config={
