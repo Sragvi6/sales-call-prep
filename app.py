@@ -261,7 +261,7 @@ def generate_prep():
         if has_new_sdk:
             client = genai.Client(api_key=api_key)
             response = client.models.generate_content(
-                model='gemini-2.5-flash-preview-05-20',
+                model='gemini-pro',
                 contents=prompt,
                 config=types.GenerateContentConfig(
                     response_mime_type="application/json",
@@ -271,7 +271,7 @@ def generate_prep():
             response_text = response.text
         else:
             genai_old.configure(api_key=api_key)
-            model = genai_old.GenerativeModel('gemini-2.5-flash-preview-05-20')
+            model = genai_old.GenerativeModel('gemini-pro')
             response = model.generate_content(
                 prompt,
                 generation_config={
